@@ -72,16 +72,14 @@ def update_data():
 # ================= DASHBOARD =================
 if menu == "🏠 Dashboard":
 
-    st.title("🌡️ Smart IoT Monitoring System")
+    st.title("🌡️ Smart Monitoring System")
     st.caption("Realtime monitoring suhu & kelembaban")
 
     update_data()
     suhu = st.session_state.suhu
     kelembaban = st.session_state.kelembaban
 
-    update_data()
-    suhu = st.session_state.suhu
-    kelembaban = st.session_state.kelembaban
+    col1, col2, col3 = st.columns(3)
 
     # SUHU
     with col1:
