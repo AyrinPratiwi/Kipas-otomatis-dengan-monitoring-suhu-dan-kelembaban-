@@ -32,7 +32,7 @@ h1 {
     color: #38bdf8;
 }
 
-/* FAN ANIMATION */
+/* FAN */
 .fan {
     font-size: 40px;
     animation: spin 1s linear infinite;
@@ -62,12 +62,17 @@ menu = st.sidebar.radio("Navigasi", ["🏠 Dashboard", "📊 Analytics", "🔧 D
 # ================= DATA =================
 if "suhu" not in st.session_state:
     st.session_state.suhu = 28
+
 if "kelembaban" not in st.session_state:
     st.session_state.kelembaban = 70
+
+if "history" not in st.session_state:
+    st.session_state.history = []
 
 def update_data():
     st.session_state.suhu += np.random.uniform(-0.3, 0.3)
     st.session_state.kelembaban += np.random.uniform(-0.8, 0.8)
+    st.session_state.history.append(st.session_state.suhu)
 
 # ================= DASHBOARD =================
 if menu == "🏠 Dashboard":
@@ -76,12 +81,18 @@ if menu == "🏠 Dashboard":
     st.caption("Realtime monitoring suhu & kelembaban")
 
     update_data()
+
     suhu = st.session_state.suhu
     kelembaban = st.session_state.kelembaban
 
+<<<<<<< HEAD
+    # ===== COLUMNS FIX (ANTI ERROR) =====
+    col1, col2, col3 = st.columns(3)
+=======
     update_data()
     suhu = st.session_state.suhu
     kelembaban = st.session_state.kelembaban
+>>>>>>> 41ebba8deab86d6bf2495e208f04193a26b78b94
 
     # SUHU
     with col1:
@@ -95,7 +106,7 @@ if menu == "🏠 Dashboard":
         st.metric("💧 Kelembaban", f"{kelembaban:.2f} %")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # FAN STATUS + ANIMATION
+    # FAN STATUS
     with col3:
         st.markdown('<div class="card">', unsafe_allow_html=True)
         if suhu > 30:
@@ -133,16 +144,21 @@ if menu == "🏠 Dashboard":
     else:
         st.success("❄️ Suhu normal → sistem standby")
 
-    # ================= REALTIME CHART =================
+    # ================= CHART (FIX NO LAG) =================
     st.subheader("📈 Grafik Realtime")
 
-    chart = st.line_chart(pd.DataFrame({"Suhu": []}))
+    if len(st.session_state.history) > 50:
+        st.session_state.history.pop(0)
 
-    for i in range(20):
-        update_data()
-        new_data = pd.DataFrame({"Suhu": [st.session_state.suhu]})
-        chart.add_rows(new_data)
-        time.sleep(0.2)
+    chart_data = pd.DataFrame({
+        "Suhu": st.session_state.history
+    })
+
+    st.line_chart(chart_data)
+
+    # 🔁 Refresh button (biar realtime tanpa lag)
+    if st.button("🔄 Refresh Data"):
+        st.rerun()
 
 # ================= ANALYTICS =================
 elif menu == "📊 Analytics":
