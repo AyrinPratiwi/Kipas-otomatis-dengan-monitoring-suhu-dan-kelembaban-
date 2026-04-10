@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 # CONFIG
-st.set_page_config(page_title="IoT Smart Dashboard", layout="wide")
+st.set_page_config(page_title="IMonitoring Kipas dengan sensor DHT 22", layout="wide")
 
 # SIDEBAR
 st.sidebar.title("⚙️ Smart Control Panel")
