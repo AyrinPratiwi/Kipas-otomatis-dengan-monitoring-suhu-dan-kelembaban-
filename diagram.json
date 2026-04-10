@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard-mini", "id": "bb1", "top": 8.2, "left": 55.2, "attrs": {} },
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": -105, "left": -327, "attrs": {} },
+    { "type": "wokwi-led", "id": "led1", "top": -22.8, "left": 71, "attrs": { "color": "red" } },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -316.5, "left": -379.8, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 23.15,
+      "left": 96,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd1",
+      "top": -339.2,
+      "left": -42.4,
+      "attrs": { "pins": "i2c" }
+    }
+  ],
+  "connections": [
+    [ "dht1:VCC", "uno:5V", "red", [ "v0" ] ],
+    [ "dht1:GND", "uno:GND.2", "black", [ "v0" ] ],
+    [ "dht1:SDA", "uno:2", "green", [ "v0" ] ],
+    [ "lcd1:SDA", "uno:A4", "green", [ "h0" ] ],
+    [ "lcd1:SCL", "uno:A5", "green", [ "h0" ] ],
+    [ "led1:A", "bb1:4t.a", "", [ "$bb" ] ],
+    [ "led1:C", "bb1:3t.a", "", [ "$bb" ] ],
+    [ "r1:1", "bb1:4t.b", "", [ "$bb" ] ],
+    [ "r1:2", "bb1:10t.b", "", [ "$bb" ] ],
+    [ "bb1:3t.b", "uno:GND.3", "green", [ "v0" ] ],
+    [ "bb1:10t.c", "uno:9", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
