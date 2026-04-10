@@ -2,26 +2,76 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import time
+import plotly.graph_objects as go
 
 # CONFIG
-st.set_page_config(page_title="IMonitoring Kipas dengan sensor DHT 22", layout="wide")
+st.set_page_config(page_title="Monitoring Suhu dan Kelembaban pada Kipas Otomatis", layout="wide")
 
-# SIDEBAR
+# ================= STYLE =================
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(135deg, #020617, #0f172a);
+    color: white;
+}
+
+section[data-testid="stSidebar"] {
+    background: #020617;
+}
+
+/* CARD */
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 25px rgba(0,255,255,0.1);
+}
+
+/* TITLE */
+h1 {
+    color: #38bdf8;
+}
+
+/* FAN ANIMATION */
+.fan {
+    font-size: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+/* STATUS */
+.status-on {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.status-off {
+    color: #60a5fa;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ================= SIDEBAR =================
 st.sidebar.title("⚙️ Smart Control Panel")
 menu = st.sidebar.radio("Navigasi", ["🏠 Dashboard", "📊 Analytics", "🔧 Device"])
 
-# SIMULASI DATA HALUS (biar realistis)
+# ================= DATA =================
 if "suhu" not in st.session_state:
     st.session_state.suhu = 28
 if "kelembaban" not in st.session_state:
     st.session_state.kelembaban = 70
 
 def update_data():
-    st.session_state.suhu += np.random.uniform(-0.5, 0.5)
-    st.session_state.kelembaban += np.random.uniform(-1, 1)
+    st.session_state.suhu += np.random.uniform(-0.3, 0.3)
+    st.session_state.kelembaban += np.random.uniform(-0.8, 0.8)
 
 # ================= DASHBOARD =================
 if menu == "🏠 Dashboard":
+
     st.title("🌡️ Smart IoT Monitoring System")
     st.caption("Realtime monitoring suhu & kelembaban")
 
@@ -29,27 +79,66 @@ if menu == "🏠 Dashboard":
     suhu = st.session_state.suhu
     kelembaban = st.session_state.kelembaban
 
-    # METRICS
-    col1, col2, col3 = st.columns(3)
+    update_data()
+    suhu = st.session_state.suhu
+    kelembaban = st.session_state.kelembaban
 
-    col1.metric("🌡️ Suhu (°C)", f"{suhu:.2f}")
-    col2.metric("💧 Kelembaban (%)", f"{kelembaban:.2f}")
+    # SUHU
+    with col1:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.metric("🌡️ Suhu", f"{suhu:.2f} °C")
+        st.markdown('</div>', unsafe_allow_html=True)
 
+    # KELEMBABAN
+    with col2:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.metric("💧 Kelembaban", f"{kelembaban:.2f} %")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # FAN STATUS + ANIMATION
+    with col3:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        if suhu > 30:
+            st.markdown('<div class="fan">🌀</div>', unsafe_allow_html=True)
+            st.markdown('<div class="status-on">KIPAS ON</div>', unsafe_allow_html=True)
+        else:
+            st.markdown("🌀")
+            st.markdown('<div class="status-off">KIPAS OFF</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # ================= GAUGE =================
+    st.subheader("🔥 Indikator Suhu")
+
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=suhu,
+        title={'text': "Suhu (°C)"},
+        gauge={
+            'axis': {'range': [0, 40]},
+            'bar': {'color': "#22c55e"},
+            'steps': [
+                {'range': [0, 25], 'color': "#1e293b"},
+                {'range': [25, 30], 'color': "#3b82f6"},
+                {'range': [30, 40], 'color': "#ef4444"},
+            ],
+        }
+    ))
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    # ================= STATUS =================
+    st.markdown("### ⚡ Status Sistem")
     if suhu > 30:
-        col3.error("🌀 Kipas ON")
+        st.error("🔥 Suhu tinggi → kipas otomatis aktif")
     else:
-        col3.success("❄️ Kipas OFF")
+        st.success("❄️ Suhu normal → sistem standby")
 
-    # GAUGE (PROGRESS BAR STYLE)
-    st.subheader("Indikator Suhu")
-    st.progress(min(int((suhu/40)*100),100))
-
-    # REALTIME GRAPH
+    # ================= REALTIME CHART =================
     st.subheader("📈 Grafik Realtime")
 
     chart = st.line_chart(pd.DataFrame({"Suhu": []}))
 
-    for i in range(30):
+    for i in range(20):
         update_data()
         new_data = pd.DataFrame({"Suhu": [st.session_state.suhu]})
         chart.add_rows(new_data)
@@ -77,12 +166,9 @@ elif menu == "📊 Analytics":
 elif menu == "🔧 Device":
     st.title("🔧 Status Device")
 
-    st.write("Status Sensor: ✅ Aktif")
-    st.write("Koneksi: 🌐 Online (Simulasi)")
-    st.write("Mode: 🤖 Otomatis")
+    st.markdown("✅ Sensor aktif")
+    st.markdown("🌐 Koneksi: Online (Simulasi)")
+    st.markdown("🤖 Mode: Otomatis")
 
-    st.subheader("Kontrol Manual (Simulasi)")
-    tombol = st.button("Toggle Kipas")
-
-    if tombol:
-        st.success("Kipas di-toggle (simulasi)")
+    if st.button("Toggle Kipas"):
+        st.success("Kipas berhasil di-toggle (simulasi)")
