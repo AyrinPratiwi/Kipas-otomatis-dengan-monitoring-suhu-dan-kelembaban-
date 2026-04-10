@@ -79,7 +79,9 @@ if menu == "🏠 Dashboard":
     suhu = st.session_state.suhu
     kelembaban = st.session_state.kelembaban
 
-    col1, col2, col3 = st.columns(3)
+    update_data()
+    suhu = st.session_state.suhu
+    kelembaban = st.session_state.kelembaban
 
     # SUHU
     with col1:
