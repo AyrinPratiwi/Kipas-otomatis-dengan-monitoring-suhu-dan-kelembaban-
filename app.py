@@ -5,7 +5,7 @@ import time
 import plotly.graph_objects as go
 
 # CONFIG
-st.set_page_config(page_title="Smart IoT Kipas otomatis", layout="wide")
+st.set_page_config(page_title="Monitoring Suhu dan Kelembaban pada Kipas Otomatis", layout="wide")
 
 # ================= STYLE =================
 st.markdown("""
